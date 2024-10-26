@@ -3,3 +3,4 @@ asyncpg
 pydantic-settings
 sqlmodel
 greenlet
+alembic
