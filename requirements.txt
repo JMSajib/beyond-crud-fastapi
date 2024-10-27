@@ -5,3 +5,4 @@ sqlmodel
 greenlet
 alembic
 passlib[bcrypt]
+pyjwt
