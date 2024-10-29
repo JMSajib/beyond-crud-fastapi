@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.auth.dependencies import RefreshTokenBearer
+from src.auth.dependencies import RefreshTokenBearer, AccessTokenBearer
 from src.auth.schemas import UserCreateModel, UserLoginModel, UserModel
 from src.auth.service import UserService
 from src.auth.utils import create_access_token, verify_password
 from src.db.main import get_session
+from src.db.redis import add_jti_to_blacklist
 
 auth_router = APIRouter()
 
@@ -72,4 +73,17 @@ async def refresh_token(token_details: dict = Depends(refresh_token)):
         return JSONResponse(content={"access_token": new_access_token})
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
+    )
+
+
+@auth_router.get("/logout")
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+    jti = token_details.get('jti')
+    await add_jti_to_blacklist(jti)
+    
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content= {
+            "message": "Logout Successful"
+        }
     )

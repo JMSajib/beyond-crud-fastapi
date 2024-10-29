@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 
 import jwt
+from jwt import InvalidSignatureError, ExpiredSignatureError
 from passlib.context import CryptContext
 
 from src.config import Config
@@ -39,12 +40,22 @@ def create_access_token(
     return token
 
 
-def decode_token(token: str):
+def decode_token(token: str) -> dict:
     try:
         token_data = jwt.decode(
             jwt=token, key=Config.JWT_SECRET, algorithms=[Config.JWT_ALGORITHM]
         )
+
         return token_data
+    
+    except ExpiredSignatureError:
+        logging.error("Token has expired")
+        return None
+
+    except InvalidSignatureError:
+        logging.error("Token signature verification failed")
+        return None
+
     except jwt.PyJWTError as e:
         logging.exception(e)
         return None

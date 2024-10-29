@@ -6,3 +6,7 @@ greenlet
 alembic
 passlib[bcrypt]
 pyjwt
+aioredis
+isort
+flake8
+black
