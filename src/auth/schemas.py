@@ -1,16 +1,17 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
 class UserCreateModel(BaseModel):
-    username : str = Field(max_length=8)
-    email : str = Field(max_length=20)
+    username: str = Field(max_length=8)
+    email: str = Field(max_length=20)
     first_name: str = Field(min_length=3, max_length=20)
     last_name: str = Field(min_length=3, max_length=20)
-    password : str = Field(min_length=6)
-    
-    
+    password: str = Field(min_length=6)
+
+
 class UserModel(BaseModel):
     uid: uuid.UUID
     username: str
@@ -21,7 +22,8 @@ class UserModel(BaseModel):
     password_hash: str = Field(exclude=True)
     created_at: datetime
     updated_at: datetime
-    
+
+
 class UserLoginModel(BaseModel):
-    email : str = Field(max_length=20)
-    password : str = Field(min_length=6)
+    email: str = Field(max_length=20)
+    password: str = Field(min_length=6)

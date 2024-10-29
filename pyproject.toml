@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 88
+target-version = ['py39']
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3  # Vertical hanging indent for long imports
+include_trailing_comma = true  # Add trailing comma for Black compatibility
+known_first_party = ["your_project_name"]  # Replace with your project name
+known_third_party = ["flask", "django"]  # Specify third-party libraries if needed
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+order_by_type = false  # Keeps imports ordered by module path rather than type
