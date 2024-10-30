@@ -18,9 +18,24 @@ role_checker = Depends(RoleCheker(['admin', 'user']))
 @book_router.get('/', response_model=List[Book], dependencies=[role_checker])
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
-    user_details: dict = Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ):
     books = await book_service.get_all_books(session)
+    return books
+
+
+@book_router.get('/user/{user_uid}', response_model=List[Book], dependencies=[role_checker])
+async def get_all_books(
+    user_uid: str,
+    session: AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer),
+):
+    user_uid_from_token = token_details.get('user').get('user_uid')
+    if user_uid_from_token != user_uid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User Id not match"
+        )
+    books = await book_service.get_all_books_by_user(user_uid, session)
     return books
 
 
@@ -28,9 +43,10 @@ async def get_all_books(
 async def create_book(
     book_data: BookCreateModel,
     session: AsyncSession = Depends(get_session),
-    user_details=Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ) -> dict:
-    new_book = await book_service.create_book(book_data, session)
+    user_uid = token_details.get('user').get('user_uid')
+    new_book = await book_service.create_book(book_data, user_uid, session)
     return new_book
 
 
@@ -38,7 +54,7 @@ async def create_book(
 async def get_book(
     book_uid: str,
     session: AsyncSession = Depends(get_session),
-    user_details=Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ) -> dict:
     book = await book_service.get_book(book_uid, session)
     if book:
@@ -54,7 +70,7 @@ async def update_book(
     book_uid: str,
     book_update_date: BookUpdateModel,
     session: AsyncSession = Depends(get_session),
-    user_details=Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ) -> dict:
     updated_book = await book_service.update_book(book_uid, book_update_date, session)
     if updated_book:
@@ -69,7 +85,7 @@ async def update_book(
 async def delete_book(
     book_uid: str,
     session: AsyncSession = Depends(get_session),
-    user_details=Depends(access_token_bearer),
+    token_details: dict = Depends(access_token_bearer),
 ):
     book_to_delete = await book_service.delete_book_by_uid(book_uid, session)
     if book_to_delete is None:
