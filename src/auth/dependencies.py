@@ -1,9 +1,14 @@
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.auth.service import UserService
+from src.db.main import get_session
 from src.db.redis import token_in_blacklist
 
 from src.auth.utils import decode_token
 
+
+user_service = UserService()
 
 class TokenBearer(HTTPBearer):
     def __init__(self, auto_error=True):
@@ -60,3 +65,9 @@ class RefreshTokenBearer(TokenBearer):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Provide a valid refresh token",
             )
+
+
+async def get_current_user(user_details: dict = Depends(AccessTokenBearer()), session: AsyncSession = Depends(get_session)):
+    user_email = user_details.get('user').get('email')
+    user = await user_service.get_user_by_email(user_email, session)
+    return user
