@@ -10,3 +10,4 @@ aioredis
 isort
 flake8
 black
+redis

@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.auth.dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user, RoleCheker
-from src.auth.schemas import UserCreateModel, UserLoginModel, UserModel
+from src.auth.schemas import UserCreateModel, UserLoginModel, UserModel, UserBooksModel
 from src.auth.service import UserService
 from src.auth.utils import create_access_token, verify_password
 from src.db.main import get_session
@@ -77,7 +77,7 @@ async def refresh_token(token_details: dict = Depends(refresh_token)):
     )
 
 
-@auth_router.get("/me", response_model=UserModel)
+@auth_router.get("/me", response_model=UserBooksModel)
 async def get_current_user(user = Depends(get_current_user), _:bool = Depends(role_checker) ):
     return user
 
