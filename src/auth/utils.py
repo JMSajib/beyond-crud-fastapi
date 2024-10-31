@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 
 import jwt
-from jwt import InvalidSignatureError, ExpiredSignatureError
+from jwt import ExpiredSignatureError, InvalidSignatureError
 from passlib.context import CryptContext
 
 from src.config import Config
@@ -47,7 +47,7 @@ def decode_token(token: str) -> dict:
         )
 
         return token_data
-    
+
     except ExpiredSignatureError:
         logging.error("Token has expired")
         return None

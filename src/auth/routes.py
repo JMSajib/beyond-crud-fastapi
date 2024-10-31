@@ -4,8 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.auth.dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user, RoleCheker
-from src.auth.schemas import UserCreateModel, UserLoginModel, UserModel, UserBooksModel
+from src.auth.dependencies import (
+    AccessTokenBearer,
+    get_current_user,
+    RefreshTokenBearer,
+    RoleCheker,
+)
+from src.auth.schemas import UserBooksModel, UserCreateModel, UserLoginModel, UserModel
 from src.auth.service import UserService
 from src.auth.utils import create_access_token, verify_password
 from src.db.main import get_session
@@ -46,7 +51,11 @@ async def login_users(
     user = await user_service.get_user_by_email(email, session)
     if user is not None and verify_password(password, user.password_hash):
         access_token = create_access_token(
-            user_data={'email': user.email, 'user_uid': str(user.uid), 'role': user.role}
+            user_data={
+                'email': user.email,
+                'user_uid': str(user.uid),
+                'role': user.role,
+            }
         )
         refresh_token = create_access_token(
             user_data={'email': user.email, 'user_uid': str(user.uid)},
@@ -78,7 +87,9 @@ async def refresh_token(token_details: dict = Depends(refresh_token)):
 
 
 @auth_router.get("/me", response_model=UserBooksModel)
-async def get_current_user(user = Depends(get_current_user), _:bool = Depends(role_checker) ):
+async def get_current_user(
+    user=Depends(get_current_user), _: bool = Depends(role_checker)
+):
     return user
 
 
@@ -86,10 +97,7 @@ async def get_current_user(user = Depends(get_current_user), _:bool = Depends(ro
 async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
     jti = token_details.get('jti')
     await add_jti_to_blacklist(jti)
-    
+
     return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content= {
-            "message": "Logout Successful"
-        }
+        status_code=status.HTTP_200_OK, content={"message": "Logout Successful"}
     )

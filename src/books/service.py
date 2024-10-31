@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.db.models import Book
 from src.books.schemas import BookCreateModel, BookUpdateModel
+from src.db.models import Book
 
 
 class BookService:
@@ -12,9 +12,13 @@ class BookService:
         statement = select(Book).order_by(desc(Book.created_at))
         result = await session.exec(statement)
         return result.all()
-    
+
     async def get_all_books_by_user(self, user_uid: str, session: AsyncSession):
-        statement = select(Book).filter(Book.user_uid == user_uid).order_by(desc(Book.created_at))
+        statement = (
+            select(Book)
+            .filter(Book.user_uid == user_uid)
+            .order_by(desc(Book.created_at))
+        )
         result = await session.exec(statement)
         return result.all()
 
@@ -25,7 +29,9 @@ class BookService:
         book = result.first()
         return book if book else None
 
-    async def create_book(self, book_data: BookCreateModel, user_uid: str, session: AsyncSession):
+    async def create_book(
+        self, book_data: BookCreateModel, user_uid: str, session: AsyncSession
+    ):
         book_data_dict = book_data.model_dump()
         new_book = Book(**book_data_dict)
         new_book.published_date = datetime.strptime(
