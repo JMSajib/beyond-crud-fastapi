@@ -8,7 +8,7 @@ from src.auth.dependencies import (
     AccessTokenBearer,
     get_current_user,
     RefreshTokenBearer,
-    RoleCheker,
+    RoleChecker,
 )
 from src.auth.schemas import UserBooksModel, UserCreateModel, UserLoginModel, UserModel
 from src.auth.service import UserService
@@ -20,7 +20,7 @@ auth_router = APIRouter()
 
 user_service = UserService()
 refresh_token = RefreshTokenBearer()
-role_checker = RoleCheker(['user', 'admin'])
+role_checker = RoleChecker(['user', 'admin'])
 
 REFRESH_TOKEN_EXPIRY = 2
 

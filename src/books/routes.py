@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.auth.dependencies import AccessTokenBearer, RoleCheker
+from src.auth.dependencies import AccessTokenBearer, RoleChecker
 from src.books.schemas import Book, BookCreateModel, BookUpdateModel, BookDetailModel
 from src.books.service import BookService
 from src.db.main import get_session
@@ -13,7 +13,7 @@ book_router = APIRouter()
 
 book_service = BookService()
 access_token_bearer = AccessTokenBearer()
-role_checker = Depends(RoleCheker(['admin', 'user']))
+role_checker = Depends(RoleChecker(['admin', 'user']))
 
 
 @book_router.get('/', response_model=List[Book], dependencies=[role_checker])
